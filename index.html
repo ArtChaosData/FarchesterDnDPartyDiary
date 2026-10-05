@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Журнал пати Фарчестера</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: case file of the Order's agents — sticky tab bar, one column of entries, session tags as margin marks */
+:root{
+  /* Палитра HeroSummoner (tokens.css) */
+  --bg:#141724; --surface:#1C2031; --surface-2:#23283B; --surface-3:#2A3046;
+  --fg:#DCDBEC; --sub:#AEADC8; --muted:#8886A6; --line:#2A2F45; --line-2:#363C57;
+  --accent:#C9A86A; --indigo:#9C96FF; --indigo-bg:rgba(108,99,255,.12);
+  --moss:#7CCB98; --moss-soft:rgba(58,171,114,.10); --amber:#DEBA5A; --amber-soft:rgba(201,162,60,.12);
+  --c-tor:#8AA9DC; --c-kro:#E08080; --c-ela:#7CCB98; --c-vai:#72C2DC; --c-gnu:#E0A066;
+  --display:"Philosopher",Georgia,serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+body{background-color:var(--bg);color:var(--fg);font:15.5px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:28px 64px}
+header h1{font:700 clamp(30px,6vw,44px)/1.05 var(--display);margin:0;letter-spacing:.01em;text-wrap:balance}
+header .sub{color:var(--sub);margin:.4em 0 0;max-width:62ch}
+header .seal{font:500 12px var(--mono);color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(20,23,36,.9);backdrop-filter:blur(16px);margin-top:22px;padding-block:10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+nav button{font:500 14px var(--body);background:none;border:1px solid transparent;color:var(--muted);padding:7px 15px;border-radius:14px;cursor:pointer;transition:all .14s ease}
+nav button:hover:not([aria-selected="true"]){color:var(--sub);background:var(--surface-2)}
+nav button[aria-selected="true"]{color:var(--fg);border-color:var(--line-2);background:var(--surface-3);box-shadow:0 1px 6px rgba(0,0,0,.35)}
+nav button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.search{margin-left:auto;flex:1 1 180px;max-width:260px}
+.search input{width:100%;box-sizing:border-box;font:15px var(--body);padding:7px 14px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--fg)}
+h2{font:700 24px/1.2 var(--display);margin:34px 0 12px;text-wrap:balance}
+h2 .tg{all:unset;cursor:pointer;display:inline-flex;align-items:baseline;gap:10px;border-radius:6px}
+h2 .tg:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+h2 .tg::before{content:"";width:.42em;height:.42em;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s;flex:none;align-self:center}
+h2 .tg[aria-expanded="false"]::before{transform:rotate(-45deg)}
+h2 .tg[aria-expanded="false"]{color:var(--muted)}
+.tools{display:flex;gap:14px;justify-content:flex-end;margin-top:14px;font-size:14px}
+.lgt{all:unset;cursor:pointer;margin-top:10px;display:inline-flex;align-items:center;gap:8px;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lgt::before{content:"";width:.5em;height:.5em;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s}
+.lgt[aria-expanded="false"]::before{transform:rotate(-45deg)}
+.lgt:hover{color:var(--fg)} .lgt:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){.lgt::before{transition:none}}
+.tools button{all:unset;cursor:pointer;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.tools button:hover{color:var(--fg)}
+.tools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){h2 .tg::before{transition:none}}
+h2 small{font:500 12px var(--mono);color:var(--muted);letter-spacing:.08em;margin-left:8px;text-transform:uppercase}
+.list{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+.card h3{font:600 17px/1.35 var(--body);letter-spacing:-.005em;margin:0 0 4px}
+.card p{margin:.35em 0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px;color:var(--muted);margin-bottom:6px}
+.chip{font:500 12px var(--mono);padding:2px 8px;border-radius:999px;letter-spacing:.03em;white-space:nowrap}
+.st-active{background:var(--moss-soft);color:var(--moss)}
+.st-decide{background:var(--amber-soft);color:var(--amber)}
+.st-done{background:var(--surface-3);color:var(--muted)}
+.st-main{background:var(--indigo-bg);color:var(--indigo)}
+.reward{font-weight:500;color:var(--fg)}
+.log{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:15.5px}
+.log li{display:grid;grid-template-columns:44px 1fr;gap:8px}
+.s{font:500 12px var(--mono);color:var(--accent);padding-top:3px}
+.facts{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.facts li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.facts li:last-child{border-bottom:0;padding-bottom:0}
+.sus{font-style:italic;color:var(--muted)}
+.fx-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:4px}
+.fx-head h3{margin:0}
+.st-ours{background:var(--indigo-bg);color:var(--indigo)}
+.st-hire{background:var(--surface-3);color:var(--sub)}
+.st-deal{background:var(--amber-soft);color:var(--amber)}
+.st-unk{background:var(--surface-3);color:var(--muted)}
+.mem{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px;padding:0;list-style:none}
+.mem li{font-size:14px;padding:2px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line-2)}
+.mem li small{color:var(--muted);font-size:12.5px}
+.subs{display:grid;gap:10px;margin-top:12px;padding-left:14px;border-left:2px solid var(--line-2)}
+.sub h4{font:600 15.5px/1.35 var(--body);margin:0 0 2px}
+.lbl{font:700 10.5px var(--body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:10px 0 0}
+.fx-head+.lbl{margin-top:4px}
+.seg{display:inline-flex;gap:3px;padding:4px;margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.seg button{font:500 13.5px var(--body);color:var(--muted);background:none;border:1px solid transparent;border-radius:10px;padding:6px 14px;cursor:pointer}
+.seg button[aria-selected="true"]{color:var(--fg);background:var(--surface-3);border-color:var(--line-2)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.facts li.nos{grid-template-columns:1fr}
+.ktag{display:block;margin-top:2px;font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-style:normal}
+.dlog{margin:0;padding-left:1.1em;display:grid;gap:8px}
+.dlog li::marker{color:var(--accent)}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.people .card h3{font-size:17px}
+.fac{font:700 10.5px var(--body);text-transform:uppercase;letter-spacing:.09em;color:var(--indigo)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:15.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 10.5px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.who{font-weight:700}
+.note{color:var(--muted);font-size:14.5px;margin-top:28px;max-width:70ch}
+.empty{color:var(--muted);padding:24px 0}
+[class^="nm-"]{font-weight:500}.nm-tor{color:var(--c-tor)}.nm-kro{color:var(--c-kro)}.nm-ela{color:var(--c-ela)}.nm-vai{color:var(--c-vai)}.nm-gnu{color:var(--c-gnu)}
+mark{background:var(--amber-soft);color:inherit;padding:0 2px;border-radius:3px}
+@media (max-width:520px){.search{max-width:none;margin-left:0}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="seal">Орден Гефары · полевой журнал</div>
+    <h1>Журнал пати Фарчестера</h1>
+    <p class="sub">Квесты, обещанные награды и всё, что персонажи успели узнать о Южном Фарчестере. Пометка вроде <span class="s">с7</span> означает сессию, на которой это выяснилось. Обновлено по итогам 13-й сессии.</p>
+  </header>
+  <nav role="tablist" aria-label="Разделы">
+    <button role="tab" id="t-quests" data-tab="quests" aria-selected="true">Квесты</button>
+    <button role="tab" id="t-diary" data-tab="diary" aria-selected="false">Дневник пати</button>
+    <button role="tab" id="t-know" data-tab="know" aria-selected="false">Что мы знаем</button>
+        <button role="tab" id="t-people" data-tab="people" aria-selected="false">Люди</button>
+    <button role="tab" id="t-items" data-tab="items" aria-selected="false">Имущество</button>
+    <label class="search"><input id="q" type="search" placeholder="Поиск по журналу" aria-label="Поиск по журналу"></label>
+  </nav>
+  <main id="out"></main>
+  <p class="note">Здесь только то, что знают игроки. Догадки персонажей выделены курсивом и не подтверждены.</p>
+</div>
+
+<script>
+const Q = {
+  main:[{t:"Куда делись деньги Фарчестера",st:"main",from:"Орден Гефары · Фамилиарис Освальд Вейнхарт",
+    d:"Пати — агенты Ордена под прикрытием наёмных приключенцев. Из горожан об этом знает только Йорверт.",
+    log:[["с8","Налоги идут так: ремесленники → город → Марка. Бюджет от Марки приходит раз в год, четырьмя сезонными траншами."],
+         ["с12","Пьяная Эвелина рассказала тавернщику Йорверту, что пати — шпионы. «Будем дружить»."],
+         ["с13","Йорверт раскрылся: он сам агент Ордена в ранге Фамилиарис. Ещё раз рассказал про пакт и систему налогообложения."]]}],
+  npc:[
+   {t:"Выкрасть Фарчестерский пакт",st:"decide",from:"Эларвен (Лесная Крона)",reward:"100 зм каждому от эльфов + 10 зм каждому от Гнурка",
+    d:"Пакт уже у пати. Отдавать ли его и кому — решать пати.",
+    log:[["с8","Пакт добыт из архива Библиотеки. Защита школы Ограждения: три кольца (дерево, камень, железо) с выемками под ключи. Алвина ударило током."],
+         ["с11","В лагере эльфов сторговались на 100 зм каждому. Эсме сделала вид, что у неё убежал фамильяр. Эларвен не поверил: теперь эльфы и гоблины следят за Эсме."],
+         ["с12","Вайсириэль из Лунной Кроны просит Эсме отдать договор ей, в обход Эларвена, чтобы его «подправить». Дала два дня на ответ."],
+         ["с13","Эсме рассказала пати о просьбе Вайсириэль."]]},
+   {t:"Найти шпионов Ордена в городе",st:"active",from:"Стоунгрив, бургомистр",reward:"50 зм каждому",
+    d:"Шпионы Ордена — это сама пати."},
+   {t:"Почему эльфам выгодно сотрудничать с городом",st:"active",from:"Кронхейв (от Империи)",reward:"30 зм каждому",
+    d:"Зацепки: ратуша, дровосеки на юге.",
+    log:[["с7","Эларвен признал, что у эльфов с городом экономическое соглашение, но не сказал, что Фарчестер отдаёт взамен."],
+         ["с8","Публичная версия: по Пакту о надлежащей вырубке эльфы магически находят деревья, которые скоро заболеют, и отдают на вырубку только их."],
+         ["с10","Канализация не достроена. Снаружи видна чёткая линия леса."]]},
+   {t:"Поставлять редкий алкоголь",st:"active",from:"Кронхейв",d:"Постоянный договор. Вырос из нулевого квеста: маркграф принял горький полынно-медовый эль за «эль богов»."},
+   {t:"Принести плесень из Фарчестера",st:"active",from:"Гнурк Грибогрыз",d:"В обмен гоблины помогают пати."},
+   {t:"Наладить поставки гоблинских грибов в Фарчестер",st:"active",from:"Алвин и Гнурк",
+    d:"Алвин убедил Гнурка, что торговля грибами легализует гоблинов в глазах людей лучше, чем договор. Гнурк хотел почитать пакт, но согласился на этот путь.",log:[["с11","Договорились в лагере осаждающих."]]},
+   {t:"Сопроводить Снагглтуса к Стоунгриву",st:"active",from:"решение пати",d:"Снагглтус согласился, идут вместе.",log:[["с9","Задача поставлена."]]},
+   {t:"Спрятать артефакт Тутса в Библиотеке",st:"active",from:"решение пати",d:"В башне оставлять нельзя: двойник его выключит. Пока артефакт у Эсме, завёрнут в её плащ под Печатью Тутса.",log:[["с9","Задача поставлена."]]}],
+  personal:[
+   {who:"Эвелина",t:"Распространить Багряный лес",st:"active",d:"Задание от покровителя, архифея Маарци Шор Фрумоос.",
+    log:[["с10","Маарци явился ночью, накричал и в наказание отнял у Эвелины силы на день."]]},
+   {who:"Эсме",t:"Беглянка",st:"active",d:"Эсме сбежала из дома в Фолквестию. Кто-то надел на неё кулон, но она убеждена, что он всегда был её. Всё сильнее хочется домой.",
+    log:[["с10","Кулон на Эсме. Тяга домой стала очень сильной."],["с12","Вайсириэль хочет получить договор через Эсме. Срок — два дня."]]},
+   {who:"Янко",t:"Не допустить повторения",st:"active",d:"Фарчестер когда-то захватил родные земли Янко. Он не хочет, чтобы это повторилось.",
+    log:[["с5","Флэшбек о захвате родных земель."],["с11","Эларвен наедине уговаривал Янко отдать ему договор и пообещал «дом»."]]}],
+  done:[
+   {t:"Нулевой квест Эларвена: полить и удобрить огороды у стен",r:"латунная жаровня для Эсме",s:"с5"},
+   {t:"Нулевой квест Кронхейва: достать выпивку при сухом законе",r:"постоянный договор на поставки",s:"с6"},
+   {t:"Помочь гоблинам найти Тутса",r:"Эвелина показала башню, пати привела гоблинов; Снагглтус сказал им, что не предавал",s:"с8"},
+   {t:"Убрать мусор в башне Тутса",r:"«мусор» оказался коллекцией часов Снагглтуса; задание давал двойник",s:"с9"}]
+};
+
+// Что мы знаем: [сессия, факт, фракции (ключи из FX), подозрение?]
+const FX = [["mark","Фолквестия и Степная Марка"],["city","Город Фарчестер"],["crowns","Союз Трёх Крон"],["gob","Клан Грибогрызов"],["dw","Клан Стальных контрактов"],["tuts","Тутс Снагглтус и артефакт"],["other","Прочее"]];
+const K = [
+ ["","Южный Фарчестер — на отшибе Империи, рядом со священными кронами. Платит налоги Марке.",["city"]],
+ ["с1","Стены достраиваются, стража носит красные поддоспешья. Со времён осады действуют комендантский час и сухой закон.",["city"]],
+ ["с1","Язык вокруг — вальшский, не эльфийский. Имена жриц ритуальные, а не настоящие.",["other"]],
+ ["с2","Кронхейв появился в городе только год назад.",["mark"]],
+ ["с2","Вода в городе появляется магически: камни канала влажные, на них следы школы Вызова. Это телепортация, а не акведук.",["tuts","city"]],
+ ["с3","Тутс ведёт себя как два разных человека, которые сменяют друг друга в теле: Снагглтус добрый и мягкий, второй холодный и агрессивный.",["tuts"]],
+ ["с4","Среди осаждающих минимум три стороны со своими целями: Лесная Крона, Лунная Крона и гоблины клана Грибогрызов.",["crowns","gob"]],
+ ["с4","Пати забрала из башни кристалл — часть артефакта, через который шла вода. Эсме взяла оттуда же свиток «Ха!».",["tuts"]],
+ ["с6","Бюджет приходит от Марки раз в год, четырьмя траншами по три месяца (со слов Кронхейва).",["mark"]],
+ ["с6","Горожане считают эльфов хорошими соседями, а проблемы вешают на Кронхейва (настроение в таверне).",["city"]],
+ ["с6","Алдред Хартвик нервничает из-за «официальных переговорщиков», о которых ему не сказали.",["mark"],1],
+ ["с7","Эльфы пришли из-за того, что городские нечистоты текут прямо к ним. Реакция Стоунгрива это подтвердила.",["crowns","city"]],
+ ["с7","Кронхейв выделил на проект водоснабжения 5000 зм.",["mark","tuts"]],
+ ["с7","Библиотекарша Мейридд не пробивается ни одной бумагой. Записала Алвина в формуляр как «Самоубийцу по имени Алвин Харт».",["city"]],
+ ["с7","Пати усыпила Мейридд, взяла ключ, открыла архив и вернула ключ. Эвелина в облике дварфийки сторожила; Мейридд проснулась рядом с ней.",["city"]],
+ ["с7","Архив — искусственные катакомбы, изначально склад и убежище на случай осады.",["city"]],
+ ["с7","Эльф Нимрель помог Эсме найти план канализации. На вопрос, что он тут делает, ответил «государственное дело».",["crowns"]],
+ ["с7","Стоунгрив что-то скрывает про канализацию: про тоннели нечистот ответил слишком быстро и гладко.",["city"],1],
+ ["с8","Налоги: ремесленники платят городу, город — Марке (по архивным документам).",["city","mark"]],
+ ["с8","Эларвен объясняет помощь эльфов так: они помогают людям выйти из «кабальных условий жизни на отшибе Империи».",["crowns"]],
+ ["с8","Публичное оправдание пакта о вырубке: эльфы отдают только деревья, которые скоро заболеют.",["crowns","city"]],
+ ["с8","Гоблины ходят в катакомбы с другой стороны и тоже что-то ищут. В катакомбах орудуют три стороны.",["gob"]],
+ ["с8","Эларвен недоговаривает, что город отдаёт эльфам по экономическому соглашению.",["crowns"],1],
+ ["с9","По словам Снагглтуса, второй — его астральный двойник. Двойник постоянно выключает артефакт и рассказывает гоблинам обратную версию истории.",["tuts","gob"]],
+ ["с9","Снагглтус сам принёс концепцию Стоунгриву, а инженерную часть «с фекалиями» оставил городским инженерам. Двойник врёт гоблинам, что артефакт откачивает воду из их пещер.",["tuts","city"]],
+ ["с9","Снагглтус кастует Телекинез (5-й круг), значит он как минимум волшебник 9-го уровня.",["tuts"]],
+ ["с9","Снагглтус считает Эвелину «бешеной»: она запустила ему артефактом в лоб.",["tuts"]],
+ ["с9","Двойник Тутса узнает, что артефакт унесли из башни, как только перехватит тело.",["tuts"],1],
+ ["с9","Гоблины слышали обе версии истории артефакта. Кому они верят, неясно.",["gob","tuts"],1],
+ ["с10","Канализация не достроена; выход ведёт к чёткой линии леса.",["city"]],
+ ["с11","Эльфы и гоблины пристально следят за Эсме. Годрик пнул горящие головёшки в шатёр эльфов и в сторону гоблинского.",["crowns","gob"]],
+ ["с12","Лунная Крона в лице Вайсириэль хочет получить договор отдельно от Эларвена.",["crowns"]],
+ ["с13","Статуя терьера в башне Тутса умеет нормально разговаривать.",["tuts"]]
+];
+
+// Дневник пати: [номер сессии, название, [события]]
+const D = [
+ [1,"Саженцы и засада",[
+  "Пати ехала в Фарчестер с караваном клана Стальных контрактов под началом Крагвена Раудвегра. Тир Криг свернул на восток, вокруг тракта — засуха; Крагвен заметил саженцы дуба, которых раньше здесь не было.",
+  "У самого города из засады напали гоблины клана Грибогрызов — шаман и семеро бойцов; несколько пытались тайком зацепиться под повозки.",
+  "Вечером въехали в город: строящиеся стены, стража в красном, вода в канале и фонтанах. Ночёвка в таверне «Ы Ку́ру Айр».",
+  "Утром — осада. Дварфы вытащили пати на стену: у гоблинов транспаранты «ВЫХАДЫ, ПАДЛА РУГ» и «Пора исправлять ошибки, нахлебники природы»."]],
+ [2,"Осада. Первые задания",[
+  "Дварфы каравана заключили пари о судьбе пати и города.",
+  "В ратуше много говорили об огородах и почти ничего — о падающем уровне воды. Стоунгрив поручил найти шпионов Ордена Гефары за 50 зм каждому.",
+  "На камнях канала нашлись следы школы Вызова: вода в город телепортируется.",
+  "У Северных ворот пати столкнулась со стражей."]],
+ [3,"Два лица власти",[
+  "В резиденции Кронхейва стало ясно: маркграф сильно пьёт и фактически не управляет; при упоминании «плохих людей» сразу переключается на эльфов.",
+  "В башне Тутс оказался жёстким, агрессивным и себе на уме."]],
+ [4,"Башня и переговоры",[
+  "В башне Тутса пати забрала кристалл — часть артефакта, через который в город идёт вода. Эсме взяла свиток «Ха!».",
+  "Переговоры за стенами с тремя сторонами: Эларвен от Лесной Кроны, шаман Гнурк от клана Грибогрызов и Вайсириэль Селевейн от Лунной Кроны. Разошлись без результата, но и без разрыва."]],
+ [5,"Грибы, эль и первые корни",[
+  "Эльфы дали «нулевой квест» — полить и удобрить огороды у стен. Работали Эсме и Эвелина; в награду — латунная жаровня.",
+  "Гнурк помазал пати грибами как пропуском. Сделка: пати помогает найти Тутса, гоблины — с плесенью.",
+  "На воротах стража не хотела пускать обратно: бумаги действуют только внутри города. Пропустили после объяснений про переговоры.",
+  "В таверне варили полынно-медовый эль для Кронхейва — вышел горьким, потому что Алвин не уследил за часами. Алвин напился до третьей степени.",
+  "У Янко случился флэшбек о захвате его родных земель Фарчестером.",
+  "Эсме призвала фамильяра — крысу Солрату. Пати получила 2-й уровень."]],
+ [6,"Бухло богов",[
+  "В таверне судачили: эльфы привезли к воротам урожай, эльфы хорошие, а во всём виноват Кронхейв.",
+  "В резиденции Алвин зацепился с Алдредом Хартвиком — тот занервничал из-за неведомых ему «официальных переговорщиков».",
+  "Кронхейв принял горький эль за «эль богов». Пати стала его поставщиком редкого алкоголя и получила квест: выяснить, почему эльфам выгодно сотрудничество с городом, 30 зм каждому. Каждому — именная бумага для гвардии.",
+  "Вулфрик Ривермур гонял Алдреда хлыстом; Алвин его остановил и потребовал прекратить военные сборы. Через Вулфрика передали, что ищут Эдит Харгрейв."]],
+ [7,"Архив, эльфы и усыплённая библиотекарша",[
+  "Стоунгрив выдал Эвелине бумагу. На новость о нечистотах ответил «Чёртов ландшафт!» и слишком быстро объяснил про тоннели. Что город отдаёт эльфам по пакту о вырубке, говорить отказался.",
+  "Тутс, по словам гонца Тевина, «в истерике» и не придёт. Стоунгрив смягчился, увидев уши Эсме.",
+  "Библиотекарша Мейридд не признала ни одной бумаги и записала Алвина как «Самоубийцу». Её усыпили, взяли ключ от архива и вернули; Эвелина в облике дварфийки сторожила.",
+  "Архив оказался искусственными катакомбами. Там же были эльфы; Нимрель помог Эсме найти план канализации — «государственное дело»."]],
+ [8,"Два хозяина и три кольца",[
+  "В катакомбах встретились пати, эльфы и гоблины — все что-то ищут, до драки не дошло. Из бумаг: ремесленники платят городу, город — Марке.",
+  "Эларвен поручил добыть Фарчестерский пакт: эльфы будто бы хотят вывести горожан из «кабальных условий». Рассказал про вырубку больных деревьев, но не сказал, что город отдаёт взамен.",
+  "Со второго захода нашли план канализации и пакт. Пакт защищён тремя кольцами — дерево, камень, железо; Алвина ударило током.",
+  "Вместе с гоблинами пришли в башню. Этот Тутс был мягким и «своим», сказал гоблинам, что потерял артефакт и никого не предавал. Узнав, что пати выбросила его коллекцию часов, велел гоблинам не выпускать их."]],
+ [9,"Артефактом по лбу",[
+  "Гоблины схватили Эвелину. Эсме уговорила её отдать артефакт — Эвелина запустила им Тутсу в лоб.",
+  "Снагглтус рассказал свою версию: артефакт — его идея для помощи гоблинам, концепцию он принёс Стоунгриву, а «фекалии» оставил городским инженерам. Его астральный двойник выключает артефакт и врёт гоблинам обратное.",
+  "Снагглтус согласился идти к Стоунгриву. Артефакт решили спрятать в Библиотеке, а пока он у Эсме.",
+  "Снагглтус удержал Эвелину Телекинезом и заколдовал плащ Эсме, чтобы Эвелина не могла его коснуться."]],
+ [10,"Кулон и линия леса",[
+  "Ночью Маарци явился к Эвелине, накричал и на день лишил её сил.",
+  "Эсме обнаружила на себе кулон — она уверена, что он всегда был её, — и её всё сильнее тянет домой.",
+  "Обход лавок: бакалея, зелья О Брайана, оружейная, «Всё для земледелия». Эсме продала О Брайану заговоры Преображения за 15 зм; Алвин так напугал лавочника, что тот объявил день повышения цен.",
+  "Пати прошла канализацию насквозь: она не достроена, а снаружи видна чёткая линия леса."]],
+ [11,"Головёшки и грибы",[
+  "На протоке из канализации пати поймали эльфы и отвели в лагерь. Эларвен долго торговался за пакт — сошлись на 100 зм каждому, плюс по 10 от гоблинов.",
+  "Алвин договорился с Гнурком о поставках грибов в Фарчестер.",
+  "Эсме изобразила, что у неё сбежал фамильяр; Эларвен не поверил, за Эсме теперь следят. Годрик пнул горящие головёшки в шатёр эльфов и в сторону гоблинов.",
+  "Эларвен наедине уговаривал Янко отдать договор и обещал «дом»."]],
+ [12,"Пьяные откровения",[
+  "Пати пропустили в город. В таверне пьяная Эвелина рассказала Йорверту, что они шпионы; тот ответил «Будем дружить».",
+  "Алвин пытался попасть к Тутсу, но не дошёл.",
+  "Вайсириэль пришла к Эсме: хочет получить договор в обход Эларвена и «подправить» его. Дала два дня."]],
+ [13,"Агент за стойкой",[
+  "Эсме рассказала пати о просьбе Вайсириэль.",
+  "Йорверт раскрылся как агент Ордена Гефары в ранге Фамилиарис и ещё раз рассказал про пакт и налоги.",
+  "Тутс и Алвин напились: Тутс на час отключился.",
+  "В башне Тутса статуя терьера оказалась способна нормально разговаривать."]]
+];
+
+const P = [
+ {n:"Торбальд Стоунгрив",m:1,f:"Город · бургомистр",d:"Деятельный, формальный, играет в порядок. Любит эльфов (растаял при виде ушей Эсме). Знает про покровителя Эвелины. Выдал квест на «шпионов Ордена», одобрил проект Тутса."},
+ {n:"Эдвард Кронхейв",m:1,f:"Марка · лорд-адмирал, маркграф",d:"Сломлен, пьёт. Ненавидит эльфов до аффекта. Пати — его официальные поставщики алкоголя."},
+ {n:"Алдред Хартвик",f:"Марка · командир дивизии",d:"Нервничает, узнав о «переговорщиках», о которых ему не сказали."},
+ {n:"Вулфрик Ривермур",f:"Марка",d:"Жёсткий, гонял Алдреда хлыстом. Ведёт военные сборы; пати потребовала их остановить. Через него передано сообщение Эдит Харгрейв."},
+ {n:"Эдит Харгрейв",f:"Город",d:"Пати её ищет. Сообщение передано через Вулфрика."},
+ {n:"Эларвен Тенистый Плёс",m:1,f:"Лесная Крона · лидер",d:"Спокоен и стратегичен. Хочет пакт за 100 зм каждому. Не поверил Эсме про фамильяра. Предлагал Янко «дом» в обмен на договор."},
+ {n:"Вайсириэль Селевейн",m:1,f:"Лунная Крона · переговорщица",d:"Хочет получить договор через Эсме, отдельно от Эларвена, и «подправить» его. Дала два дня."},
+ {n:"Нимрель",f:"Эльфы",d:"Встретился в катакомбах, помог Эсме найти план канализации. «Государственное дело»."},
+ {n:"Гнурк Грибогрыз",m:1,f:"Гоблины · шаман и голос клана",d:"Договороспособен. Помазал пати грибами как пропуском. Согласился на поставки грибов в город, платит 10 зм каждому."},
+ {n:"Тутс Снагглтус",m:1,f:"Учёный-гном",d:"Добрый, взъерошенный. Делит тело с холодным двойником. Отдал артефакт Эсме. В с13 напился до отключки."},
+ {n:"Йорверт Ы Ку́ру Айр",f:"Таверна · агент Ордена",d:"Тавернщик, варит полынно-медовый эль для Кронхейва. Фамилиарис Ордена Гефары."},
+ {n:"Мириан верч Йорверт",f:"Таверна",d:"Дочь тавернщика."},
+ {n:"Мейридд вал Файх",f:"Библиотека",d:"Библиотекарша. Как она отреагирует на повторное проникновение в архив, пока неизвестно."},
+ {n:"Гвилим ап Оуайн",f:"Подмастерье Тутса",d:"Гном. Есть сестра, Овейн ап Оуаин."},
+ {n:"О Брайан",f:"Лавка зелий",d:"Рыжий, лопоухий. Купил у Эсме заговоры Преображения за 15 зм. Алвин так его напугал, что тот объявил день повышения цен."},
+ {n:"Маарци Шор Фрумоос",f:"Архифей · покровитель Эвелины",d:"Недоволен Эвелиной, в с10 на день лишил её сил."},
+ {n:"Освальд Вейнхарт",f:"Орден Гефары · Фамилиарис",d:"Выдал пати главное задание."},
+ {n:"Крагвен Раудвегр",f:"Дварфы · караван",d:"Привёз пати в город. Поставил 10 зм, что Эвелина умрёт первой."},
+ {n:"Гарет Риддерх Эшборн",f:"Караван",d:"Поставил 5 зм, что Эвелина умрёт первой."},
+ {n:"Леофрик Хейворд",f:"Город · пьяница",d:"Учуял на одежде Алвина запах разбитого эля."},
+ {n:"Тевин",f:"Ратуша",d:"Гонец ратуши."}
+];
+
+const I = [
+ ["Фарчестерский пакт","Пати","архив Библиотеки, с8"],
+ ["Артефакт Тутса","Эсме, в плаще","от Снагглтуса добровольно, с9"],
+ ["Плащ под Печатью Тутса","Эсме","Эвелина не может к нему прикоснуться, с9"],
+ ["План канализации Фарчестера","Алвин / пати","архив Библиотеки, с8"],
+ ["Свиток «Ха!»","Эсме","башня Тутса, с4"],
+ ["Латунная жаровня","Эсме","от эльфов за огороды, с5"],
+ ["Фамильяр-крыса Солрата","Эсме","с5"],
+ ["Кулон","Эсме","с10"],
+ ["Грибы № 2, 53, 54, 82, 89, 96","Алвин","гоблины, с11"],
+ ["Бумаги стражи","Все","помощь внутри города, на выход не действуют, с2"],
+ ["Именные бумаги Кронхейва","Все","гвардия содействует, если это не грозит потерей людей, с6"],
+ ["Бумага бургомистра","Эвелина","с7"],
+ ["15 зм","Эсме","продала О Брайану заговоры Преображения, с10"]
+];
+const R = [
+ ["Стоунгрив","50 зм каждому","за «шпионов Ордена»"],
+ ["Кронхейв","30 зм каждому","за ответ про выгоду эльфов"],
+ ["Эларвен","100 зм каждому","за пакт"],
+ ["Гнурк","10 зм каждому + 2 гриба Эвелине","за пакт"]
+];
+
+const ST={main:"главный",active:"активен",decide:"решает пати",done:"выполнен"};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let tab="quests", q="";
+const NM=[["tor","(?:Торбальд[а-яё]*(?:\\s+Стоунгрив[а-яё]*)?|Стоунгрив[а-яё]*|бургомистр[а-яё]*)"],["kro","(?:(?:Эдвард\\s+)?Кронхейв[а-яё]*|маркграф[а-яё]*|лорд-адмирал[а-яё]*)"],["ela","(?:Эларвен[а-яё]*(?:\\s+Тенистый\\s+Плёс)?|лидер[а-яё]*\\s+Лесной\\s+Кроны)"],["vai","(?:Вайсириэль(?:\\s+Селевейн)?|переговорщиц[а-яё]*)"],["gnu","(?:Гнурк[а-яё]*(?:\\s+Грибогрыз[а-яё]*)?|шаман[а-яё]*)"]];
+const NRE=new RegExp(NM.map(([k,r])=>`(${r})`).join("|"),"giu");
+const mk=s=>{s=esc(s); if(!q) return s; const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"); return s.replace(re,"<mark>$1</mark>");};
+const hl=s=>{s=String(s);let o="",i=0;for(const m of s.matchAll(NRE)){const k=NM[m.slice(1).findIndex(x=>x!==undefined)][0];o+=mk(s.slice(i,m.index))+`<span class="nm-${k}">${mk(m[0])}</span>`;i=m.index+m[0].length;}return o+mk(s.slice(i));};
+const hit=(...xs)=>!q||xs.flat(3).join(" ").toLowerCase().includes(q.toLowerCase());
+const sn=x=>{const m=String(x).match(/с(\d+)/);return m?+m[1]:-1;};
+const desc=(a,k)=>[...a].sort((x,y)=>sn(k(y))-sn(k(x)));
+const logH=(l,key)=>{if(!l||!l.length) return ""; const k="log:"+key, open=!!q||!shut[k];
+  return `<button class="lgt" type="button" data-k="${esc(k)}" aria-expanded="${open}">События по сессиям · ${l.length}</button><ul class="log"${open?"":" hidden"}>${desc(l,e=>e[0]).map(([s,t])=>`<li><span class="s">${s}</span><span>${hl(t)}</span></li>`).join("")}</ul>`;};
+const qCard=x=>`<article class="card"><div class="meta"><span class="chip st-${x.st}">${ST[x.st]}</span>${x.who?`<span class="who">${hl(x.who)}</span>`:""}${x.from?`<span>${hl(x.from)}</span>`:""}</div><h3>${hl(x.t)}</h3>${x.reward?`<p class="reward">Награда: ${hl(x.reward)}</p>`:""}${x.d?`<p>${hl(x.d)}</p>`:""}${logH(x.log,x.t)}</article>`;
+const qHit=x=>hit(x.t,x.d||"",x.from||"",x.who||"",x.reward||"",x.log||[]);
+
+let shut={}; try{shut=JSON.parse(localStorage.getItem("shut")||"{}")}catch(e){}
+const S=(title,n,body)=>{const k=tab+":"+title, open=q||!shut[k];
+  return `<section><h2><button class="tg" type="button" data-k="${esc(k)}" aria-expanded="${open}">${esc(title)}${n!=null?` <small>${n}</small>`:""}</button></h2><div class="blk"${open?"":" hidden"}>${body}</div></section>`;};
+function quests(){
+  const sec=(title,arr,f=qCard)=>{const a=arr.filter(qHit); return a.length?S(title,a.length,`<div class="list">${a.map(f).join("")}</div>`):"";};
+  const done=desc(Q.done.filter(x=>hit(x.t,x.r)),x=>x.s);
+  return sec("Главное задание",Q.main)+sec("Задания от NPC",Q.npc)+sec("Личные квесты",Q.personal)+
+   (done.length?S("Выполнено",done.length,`<div class="list">${done.map(x=>`<article class="card"><div class="meta"><span class="chip st-done">выполнен</span><span class="s">${x.s}</span></div><h3>${hl(x.t)}</h3><p>${hl(x.r)}</p></article>`).join("")}</div>`):"");
+}
+let ksub="s"; try{const v=localStorage.getItem("ksub"); if(v==="s"||v==="fx") ksub=v;}catch(e){}
+function know(){
+  const fxName=Object.fromEntries(FX);
+  const li=(k,showS,showFx)=>`<li${showS?"":` class="nos"`}>${showS?`<span class="s">${k[0]}</span>`:""}<span class="${k[3]?"sus":""}">${hl(k[1])}${showFx?`<span class="ktag">${k[2].map(x=>esc(fxName[x])).join(" · ")}</span>`:""}</span></li>`;
+  const card=(arr,sS,sF)=>`<div class="card"><ul class="facts">${arr.map(k=>li(k,sS,sF)).join("")}</ul></div>`;
+  const a=K.filter(k=>hit(k[1],k[0],k[2].map(x=>fxName[x])));
+  const sw=q?"":`<div class="seg" role="tablist" aria-label="Группировка"><button type="button" data-ksub="s" aria-selected="${ksub==="s"}">По сессиям</button><button type="button" data-ksub="fx" aria-selected="${ksub==="fx"}">По фракциям</button></div>`;
+  if(!a.length) return "";
+  let o="";
+  if(ksub==="s"){
+    const ss=[...new Set(a.map(k=>k[0]))].sort((x,y)=>sn(y)-sn(x));
+    o=ss.map(sv=>{const f=a.filter(k=>k[0]===sv); return S(sv?"Сессия "+sv.slice(1):"Общее",f.length,card(f,false,true));}).join("");
+  } else {
+    o=FX.map(([key,name])=>{const f=desc(a.filter(k=>k[2].includes(key)),k=>k[0]); return f.length?S(name,f.length,card(f,true,false)):"";}).join("");
+  }
+  return sw+o;
+}
+
+function people(){
+  const card=p=>`<article class="card"><div class="fac">${hl(p.f)}</div><h3>${hl(p.n)}</h3><p>${hl(p.d)}</p></article>`;
+  const grp=(t,a)=>a.length?S(t,a.length,`<div class="people">${a.map(card).join("")}</div>`):"";
+  const a=P.filter(p=>hit(p.n,p.f,p.d));
+  return grp("Основные",a.filter(p=>p.m))+grp("Эпизодические",a.filter(p=>!p.m));
+}
+function items(){
+  const tb=(cols,rows)=>`<div class="tbl"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${hl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  const a=desc(I.filter(r=>hit(r)),r=>r[2]), b=R.filter(r=>hit(r)); let o="";
+  if(a.length) o+=S("Предметы и бумаги",a.length,tb(["Что","У кого","Откуда"],a));
+  if(b.length) o+=S("Обещанные награды",b.length,tb(["От кого","Сколько","За что"],b));
+  return o;
+}
+function diary(){
+  const a=D.filter(([n,t,e])=>hit("с"+n,t,e));
+  return [...a].sort((x,y)=>y[0]-x[0]).map(([n,t,e])=>{const ev=e.filter(x=>hit(x,t,"с"+n)); return S(`Сессия ${n} — ${t}`,null,`<div class="card"><ul class="dlog">${ev.map(x=>`<li>${hl(x)}</li>`).join("")}</ul></div>`);}).join("");
+}
+const R_={quests,diary,know,people,items};
+const out=document.getElementById("out");
+function render(){
+  let h = q ? ["quests","diary","know","people","items"].map(k=>R_[k]()).join("") : R_[tab]();
+  out.innerHTML = (h && !q ? `<div class="tools">${tab==="quests"?`<button type="button" data-ev="0">Скрыть события</button><button type="button" data-ev="1">Показать события</button>`:""}<button type="button" data-all="0">Свернуть всё</button><button type="button" data-all="1">Развернуть всё</button></div>` : "") + h || `<p class="empty">По запросу «${esc(q)}» ничего не нашлось.</p>`;
+  document.querySelectorAll("nav [data-tab]").forEach(b=>b.setAttribute("aria-selected", !q && b.dataset.tab===tab ? "true":"false"));
+}
+document.querySelectorAll("nav [data-tab]").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.tab;q="";document.getElementById("q").value="";try{localStorage.setItem("tab",tab)}catch(e){};render();}));
+document.getElementById("q").addEventListener("input",e=>{q=e.target.value.trim();render();});
+const saveShut=()=>{try{localStorage.setItem("shut",JSON.stringify(shut))}catch(e){}};
+out.addEventListener("click",e=>{
+  const ks=e.target.closest("[data-ksub]");
+  if(ks){ksub=ks.dataset.ksub; try{localStorage.setItem("ksub",ksub)}catch(_){} render(); return;}
+  const lg=e.target.closest(".lgt");
+  if(lg){const open=lg.getAttribute("aria-expanded")!=="true"; lg.setAttribute("aria-expanded",open); lg.nextElementSibling.hidden=!open; if(!q){if(open) delete shut[lg.dataset.k]; else shut[lg.dataset.k]=1; saveShut();} return;}
+  const ev=e.target.closest("[data-ev]");
+  if(ev){const open=ev.dataset.ev==="1"; out.querySelectorAll(".lgt").forEach(t=>{t.setAttribute("aria-expanded",open); t.nextElementSibling.hidden=!open; if(open) delete shut[t.dataset.k]; else shut[t.dataset.k]=1;}); saveShut(); return;}
+  const b=e.target.closest(".tg");
+  if(b){const open=b.getAttribute("aria-expanded")!=="true"; b.setAttribute("aria-expanded",open); b.closest("section").querySelector(".blk").hidden=!open; if(!q){if(open) delete shut[b.dataset.k]; else shut[b.dataset.k]=1; saveShut();} return;}
+  const a=e.target.closest("[data-all]");
+  if(a){const open=a.dataset.all==="1"; out.querySelectorAll(".tg").forEach(t=>{t.setAttribute("aria-expanded",open); t.closest("section").querySelector(".blk").hidden=!open; if(open) delete shut[t.dataset.k]; else shut[t.dataset.k]=1;}); saveShut();}
+});
+try{const t=localStorage.getItem("tab"); if(t&&R_[t]) tab=t;}catch(e){}
+const hsh=location.hash.slice(1); if(R_[hsh]) tab=hsh;
+render();
+</script>
+
+</body>
+</html>
